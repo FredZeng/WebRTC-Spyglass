@@ -7,6 +7,8 @@ from tkinter import Toplevel, Radiobutton, IntVar, Button, Label
 from tkinter import messagebox
 import datetime
 
+from rtp_scapy import replace_rtp_payloads
+
 
 class WebRTCSpyglassApp:
     def __init__(self):
@@ -201,9 +203,17 @@ class WebRTCSpyglassApp:
                     shutil.copy(log_path, self.session_dir)
                     print(f'已将 Chrome 调试日志复制到: {self.session_dir}')
 
+                    print('正在提取 RTP Dump...')
                     self.grep_rtp_dump(os.path.join(self.session_dir, 'chrome_debug.log'))
 
+                    print('正在处理 RTP Dump...')
                     self.convert_text_to_pcap(os.path.join(self.session_dir, 'rtp-dump.txt'))
+
+                    print('正在合并 rtp-dump.pcap 到 capture.pcap...')
+                    replace_rtp_payloads(os.path.join(self.session_dir, 'capture.pcap'),
+                                         os.path.join(self.session_dir, 'rtp-dump.pcap'), self.session_dir)
+
+                    print('处理完成，所有文件已保存到:', self.session_dir)
                 except Exception as e:
                     print(f'复制 Chrome 调试日志失败: {e}')
             else:
