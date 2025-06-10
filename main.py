@@ -87,7 +87,9 @@ class WebRTCSpyglassApp:
         if chrome_path:
             try:
                 subprocess.Popen(
-                    [chrome_path, '--enable-logging', '-v=3', '--force-fieldtrials=WebRTC-Debugging-RtpDump/Enabled/',
+                    [chrome_path, '--enable-logging',
+                     '--vmodule=*/ui/*=-3,*/blink/*=-3,*/trees/*=-3,*/content_settings/*=-3,*/enterprise/*=-3,*/component_updater/*=-3,*/webrtc/*=5',
+                     '-v=3', '--force-fieldtrials=WebRTC-Debugging-RtpDump/Enabled/',
                      '--no-sandbox'], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
                 print('已启动 Chrome 浏览器')
                 return True
