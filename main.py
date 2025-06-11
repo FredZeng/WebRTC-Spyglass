@@ -151,7 +151,7 @@ class WebRTCSpyglassApp:
             pcap_path = os.path.join(save_dir, 'capture.pcap')
             proc = subprocess.Popen([tshark_path, '-i', interface.split('.')[0], '-w', pcap_path],
                                     stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-            print(f'tshark 已启动，抓包接口: {interface}，文件保存于: {pcap_path}')
+            print(f'tshark 已启动，抓包接口: {interface}\n文件保存于: {pcap_path}')
             return proc
         except Exception as e:
             print(f'tshark 启动失败: {e}')
@@ -196,19 +196,13 @@ class WebRTCSpyglassApp:
             try:
                 # 先尝试友好地停止 tshark，发送 SIGINT 信号
                 if self.tshark_process.poll() is None:
-                    self.tshark_process.send_signal(subprocess.signal.SIGINT)
+                    self.tshark_process.terminate()
                     try:
                         self.tshark_process.wait(timeout=5)
-                        print('tshark 已通过 SIGINT 停止')
+                        print('tshark 已通过 terminate 停止')
                     except subprocess.TimeoutExpired:
-                        print('tshark SIGINT 停止超时，尝试 terminate')
-                        self.tshark_process.terminate()
-                        try:
-                            self.tshark_process.wait(timeout=3)
-                            print('tshark 已通过 terminate 停止')
-                        except subprocess.TimeoutExpired:
-                            print('tshark terminate 超时，强制 kill')
-                            self.tshark_process.kill()
+                        print('tshark terminate 超时，强制 kill')
+                        self.tshark_process.kill()
                 else:
                     print('tshark 进程已退出')
             except Exception as e:
