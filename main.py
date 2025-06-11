@@ -78,8 +78,10 @@ class WebRTCSpyglassApp:
             print('尝试关闭 Chrome 进程...')
             if sys.platform == 'darwin':
                 subprocess.run(['pkill', '-f', 'Google Chrome'], check=False)
-            elif sys.platform == 'win32':
+            elif sys.platform == 'win32' and self.is_chrome_running_windows():
                 subprocess.run(['taskkill', '/F', '/IM', 'chrome.exe'], check=False)
+
+            print('Chrome 进程已关闭')
         except Exception as e:
             print(f'关闭 Chrome 进程时出错: {e}')
 
@@ -104,7 +106,7 @@ class WebRTCSpyglassApp:
         try:
             if not tshark_path:
                 return []
-            result = subprocess.run([tshark_path, '-D'], capture_output=True, text=True)
+            result = subprocess.run([tshark_path, '-D'], capture_output=True, text=True, encoding='utf-8')
             interfaces = []
             for line in result.stdout.splitlines():
                 if line.strip():
@@ -185,8 +187,8 @@ class WebRTCSpyglassApp:
         self.tshark_process = self.start_tshark_capture(tshark_path, interface)
 
     def on_end(self):
-        self.end_button.config(state=tk.DISABLED)
-        self.start_button.config(state=tk.NORMAL)
+        self.end_button.config(state=tk.DISABLED, text='结束中...')
+        self.start_button.config(state=tk.DISABLED)
         self.kill_chrome_processes()
         if self.tshark_process:
             try:
@@ -220,6 +222,11 @@ class WebRTCSpyglassApp:
                     print(f'复制 Chrome 调试日志失败: {e}')
             else:
                 print('未找到 Chrome 调试日志文件')
+                pass
+            pass
+
+        self.end_button.config(state=tk.DISABLED, text='结束')
+        self.start_button.config(state=tk.NORMAL)
 
     def grep_rtp_dump(self, log_path):
         with open(log_path, 'r', encoding='utf-8') as f:
@@ -268,6 +275,20 @@ class WebRTCSpyglassApp:
                 if os.path.exists(path):
                     return path
         return None
+
+    def is_chrome_running_windows(self):
+        """
+        判断 Windows 上 chrome.exe 进程是否存在
+        """
+        if sys.platform != 'win32':
+            print('当前不是 Windows 平台，无法检测 chrome.exe 进程')
+            return False
+        try:
+            result = subprocess.run(['tasklist', '/FI', 'IMAGENAME eq chrome.exe'], capture_output=True, text=True, encoding='utf-8')
+            return 'chrome.exe' in result.stdout
+        except Exception as e:
+            print(f'检测 chrome.exe 进程时出错: {e}')
+            return False
 
     def run(self):
         self.root.mainloop()
