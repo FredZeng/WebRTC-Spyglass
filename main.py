@@ -187,8 +187,10 @@ class WebRTCSpyglassApp:
         self.tshark_process = self.start_tshark_capture(tshark_path, interface)
 
     def on_end(self):
-        self.end_button.config(state=tk.DISABLED, text='结束中...')
+        self.end_button.config(state=tk.DISABLED, text='处理中...')
         self.start_button.config(state=tk.DISABLED)
+        self.root.update()
+
         self.kill_chrome_processes()
         if self.tshark_process:
             try:
@@ -227,6 +229,7 @@ class WebRTCSpyglassApp:
 
         self.end_button.config(state=tk.DISABLED, text='结束')
         self.start_button.config(state=tk.NORMAL)
+        self.root.update()
 
     def grep_rtp_dump(self, log_path):
         with open(log_path, 'r', encoding='utf-8') as f:
