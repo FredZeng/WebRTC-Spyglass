@@ -284,7 +284,7 @@ class WebRTCSpyglassApp:
             print('当前不是 Windows 平台，无法检测 chrome.exe 进程')
             return False
         try:
-            result = subprocess.run(['tasklist', '/FI', 'IMAGENAME eq chrome.exe'], capture_output=True, text=True, encoding='utf-8')
+            result = subprocess.run(['tasklist', '/FI', 'IMAGENAME eq chrome.exe'], capture_output=True, text=True)
             return 'chrome.exe' in result.stdout
         except Exception as e:
             print(f'检测 chrome.exe 进程时出错: {e}')
