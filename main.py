@@ -194,12 +194,23 @@ class WebRTCSpyglassApp:
         self.kill_chrome_processes()
         if self.tshark_process:
             try:
-                self.tshark_process.terminate()
-                self.tshark_process.wait(timeout=5)
-                print('tshark 已停止')
-            except subprocess.TimeoutExpired:
-                print('tshark 停止超时，强制终止')
-                self.tshark_process.kill()
+                # 先尝试友好地停止 tshark，发送 SIGINT 信号
+                if self.tshark_process.poll() is None:
+                    self.tshark_process.send_signal(subprocess.signal.SIGINT)
+                    try:
+                        self.tshark_process.wait(timeout=5)
+                        print('tshark 已通过 SIGINT 停止')
+                    except subprocess.TimeoutExpired:
+                        print('tshark SIGINT 停止超时，尝试 terminate')
+                        self.tshark_process.terminate()
+                        try:
+                            self.tshark_process.wait(timeout=3)
+                            print('tshark 已通过 terminate 停止')
+                        except subprocess.TimeoutExpired:
+                            print('tshark terminate 超时，强制 kill')
+                            self.tshark_process.kill()
+                else:
+                    print('tshark 进程已退出')
             except Exception as e:
                 print(f'停止 tshark 时出错: {e}')
         if self.session_dir:

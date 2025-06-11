@@ -78,9 +78,18 @@ def replace_rtp_payloads(pcap_a_path, pcap_b_path, output_dir):
     :return: 替换后的 A 文件包列表
     """
 
+    pkts_a = []
+    pkts_b = []
     # 读取 A、B 文件
-    pkts_a = rdpcap(pcap_a_path)
-    pkts_b = rdpcap(pcap_b_path)
+    try:
+        pkts_a = rdpcap(pcap_a_path)
+    except Exception as e:
+        print("读取 A 文件失败:", e)
+
+    try:
+        pkts_b = rdpcap(pcap_b_path)
+    except Exception as e:
+        print("读取 B 文件失败:", e)
 
     print('A packets:', len(pkts_a))
     print('B packets:', len(pkts_b))
@@ -138,9 +147,9 @@ def replace_rtp_payloads(pcap_a_path, pcap_b_path, output_dir):
 
 
 if __name__ == "__main__":
-    replace_rtp_payloads(os.path.expanduser('~/Desktop/2025-06-09T11-55-51/capture.pcap'),
-                         os.path.expanduser('~/Desktop/2025-06-09T11-55-51/rtp-dump.pcap'),
-                         os.path.expanduser('~/Desktop/2025-06-09T11-55-51'))
+    replace_rtp_payloads(os.path.expanduser('~/Desktop/2025-06-11T11-52-52/capture.pcap'),
+                         os.path.expanduser('~/Desktop/2025-06-11T11-52-52/rtp-dump.pcap'),
+                         os.path.expanduser('~/Desktop/2025-06-11T11-52-52'))
 
     # wireshark(os.path.expanduser('~/Desktop/2025-06-09T11-55-51/output.pcap'))
     pass
